@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css';
+
 export default function ReportsTable({ reports, loading, onRefresh, onDownload, onDelete }) {
   const [refreshing, setRefreshing] = useState(false)
   const [sortedReports, setSortedReports] = useState([])
@@ -190,7 +193,27 @@ export default function ReportsTable({ reports, loading, onRefresh, onDownload, 
                         <Button variant="ghost" size="icon" onClick={() => handleDownload(report)} title="Download CSV">
                           <Download className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(report)} title="Delete report">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          // onClick={() => handleDelete(report)} title="Delete report"
+                          onClick={() => {
+                            confirmAlert({
+                              title: 'Confirm to submit',
+                              message: 'Are you sure to do this.',
+                              buttons: [
+                                {
+                                  label: 'Yes',
+                                  onClick: () => handleDelete(report)
+                                },
+                                {
+                                  label: 'No',
+                                  onClick: () => {}
+                                }
+                              ]
+                            });
+                          }}
+                        >
                           <Trash className="h-4 w-4" />
                         </Button>
                       </>

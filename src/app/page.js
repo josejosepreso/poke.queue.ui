@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { toast } from 'sonner'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,6 +20,7 @@ export default function PokemonReportsPage() {
   const [creatingReport, setCreatingReport] = useState(false)
   const [error, setError] = useState(null)
   const [selectedType, setSelectedType] = useState("")
+  const inputRef = useRef(null);
 
   // Funcion para eliminar reporte
   const handleDelete = async (id) => {
@@ -96,13 +97,25 @@ export default function PokemonReportsPage() {
     if (!selectedType) return
 
     try {
-      setCreatingReport(true)
+      let sampleSize = inputRef.current.value;
+
+      if (!sampleSize)
+        sampleSize = null;
+
+      if (sampleSize && (isNaN(sampleSize) || parseInt(sampleSize) < 0)) {
+        toast.error("Numero de registros invalido");
+        return;
+      }
+
+      setCreatingReport(true);
 
       // Crear un nuevo reporte usando la API
-      await createReport(selectedType)
+      await createReport(selectedType, sampleSize);
 
       // Mostrar notificación de éxito
       toast.success(`Se ha generado un nuevo reporte para el tipo ${selectedType}.`)
+
+      inputRef.current.value = "";
 
       // Refrescar la tabla para mostrar el nuevo reporte
       await loadReports()
@@ -149,7 +162,13 @@ export default function PokemonReportsPage() {
                 loading={loadingTypes}
               />
             </div>
-            <div className="w-full md:w-1/3">
+            <div className="w-full md:w-1/3 flex flex-col space-y-2 items-center">
+              <input
+                placeholder="Numero maximo de registros"
+                disabled={!selectedType || isLoading || creatingReport}
+                className="w-full focus:outline-none border px-3 py-1 rounded-md"
+                ref={inputRef}
+              />
               <Button
                 onClick={catchThemAll}
                 disabled={!selectedType || isLoading || creatingReport}
